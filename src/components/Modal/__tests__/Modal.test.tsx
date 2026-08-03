@@ -5,7 +5,7 @@
  * under jest with `vi` swapped for `jest`). No other component from
  * the library is imported.
  */
-
+import { useState } from "react";
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Modal } from '../Modal';
@@ -113,7 +113,7 @@ describe('Modal', () => {
     fireEvent.click(screen.getByText('Body'));
     expect(onClose).not.toHaveBeenCalled();
 
-    const overlay = container.querySelector('[data-position]') as HTMLElement;
+    const overlay = screen.getByRole("dialog").parentElement as HTMLElement;
     fireEvent.mouseDown(overlay);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -125,13 +125,13 @@ describe('Modal', () => {
       </Modal>,
     );
     await waitFor(() => {
-      expect(document.activeElement).toBe(screen.getByRole('button', { name: 'OK' }));
+      expect(document.activeElement).toBe(screen.getByRole("button", { name: /close dialog/i }));
     });
   });
 
   it('restores focus to the trigger element on close', async () => {
     function Harness() {
-      const [open, setOpen] = require('react').useState(true);
+      const [open, setOpen] = useState(true);
       return (
         <div>
           <button onClick={() => setOpen(true)}>Open trigger</button>
@@ -154,7 +154,7 @@ describe('Modal', () => {
         Body
       </Modal>,
     );
-    const panel = container.querySelector('[data-appearance]');
+    const panel = screen.getByRole("dialog");
     expect(panel).toHaveAttribute('data-appearance', 'glass');
   });
 });

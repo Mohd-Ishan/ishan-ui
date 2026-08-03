@@ -42,21 +42,13 @@ export type {
   TransformConfig,
 } from "./core/style/tokens";
 
-// ---- Card ---------------------------------------------------------------
 
-export { Card } from "./components/Card";
-
-export type {
-  CardProps,
-  CardConfig,
-} from "./components/Card";
 
 // ---- Config authoring helpers ----------------------------------------------
 import { defineConfig as defineConfigBase, createDefineConfigEntry } from "./core/config/defineConfig";
 import type { NavbarConfig as _NavbarConfig } from "./components/Navbar";
 import type { ButtonConfig as _ButtonConfig } from "./components/Button";
 import type { ModalConfig as _ModalConfig } from "./components/Modal";
-import type { CardConfig as _CardConfig } from "./components/Card";
 
 import type { DeepPartial } from "./core/config/config.types";
 
@@ -75,14 +67,12 @@ export interface DefineConfigHelpers {
   navbar: (config: DeepPartial<_NavbarConfig>) => DeepPartial<_NavbarConfig>;
   button: (config: DeepPartial<_ButtonConfig>) => DeepPartial<_ButtonConfig>;
   modal: (config: DeepPartial<_ModalConfig>) => DeepPartial<_ModalConfig>;
-  card: (config: DeepPartial<_CardConfig>) => DeepPartial<_CardConfig>;
 }
 
 export const defineConfig: DefineConfigHelpers = Object.assign(defineConfigBase, {
   navbar: createDefineConfigEntry<_NavbarConfig>(),
   button: createDefineConfigEntry<_ButtonConfig>(),
   modal: createDefineConfigEntry<_ModalConfig>(),
-  card: createDefineConfigEntry<_CardConfig>(),
 });
 export type { DeepPartial } from "./core/config/config.types";
 

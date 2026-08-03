@@ -36,7 +36,6 @@ export default defineConfig({
         navbar: resolve(__dirname, "src/components/Navbar/index.ts"),
         button: resolve(__dirname, "src/components/Button/index.ts"),
         modal: resolve(__dirname,"src/components/Modal/index.ts"),
-        card: resolve(__dirname,"src/components/Card/index.ts"),
       },
       formats: ["es", "cjs"],
       fileName: (format, entryName) => (format === "es" ? `${entryName}.js` : `${entryName}.cjs`),

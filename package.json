@@ -51,11 +51,6 @@
       "import": "./dist/modal.js",
       "require": "./dist/modal.cjs"
     },
-    "./card": {
-      "types": "./dist/card.d.ts",
-      "import": "./dist/card.js",
-      "require": "./dist/card.cjs"
-    },
     "./style.css": "./dist/style.css",
     "./package.json": "./package.json"
   },
