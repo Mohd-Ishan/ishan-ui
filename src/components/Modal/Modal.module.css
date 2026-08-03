@@ -1,0 +1,300 @@
+/* Modal.module.css
+ * Every visual value here is either a CSS custom property (set inline
+ * per-instance by getModalStyleVars) or driven by a data-* attribute
+ * (set by getModalDataAttributes). This file should rarely need to
+ * change even as new presets/configs are added.
+ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  padding: 24px;
+  background: var(--modal-overlay-gradient, var(--modal-overlay-color));
+  opacity: 1;
+  -webkit-backdrop-filter: blur(var(--modal-overlay-blur));
+  backdrop-filter: blur(var(--modal-overlay-blur));
+}
+
+/* overlay opacity is applied via a pseudo-element so blur stays crisp */
+.overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--modal-overlay-color);
+  opacity: var(--modal-overlay-opacity);
+  z-index: -1;
+}
+
+.overlay[data-anim-state='entering'],
+.overlay[data-anim-state='exiting'] {
+  transition: opacity var(--modal-anim-duration) var(--modal-anim-easing);
+}
+.overlay[data-anim-state='entering-start'],
+.overlay[data-anim-state='exiting-end'] {
+  opacity: 0;
+}
+
+/* ---- position ---- */
+.overlay[data-position='center'] { align-items: center; justify-content: center; }
+.overlay[data-position='top'] { align-items: flex-start; justify-content: center; }
+.overlay[data-position='bottom'] { align-items: flex-end; justify-content: center; }
+.overlay[data-position='left'] { align-items: center; justify-content: flex-start; }
+.overlay[data-position='right'] { align-items: center; justify-content: flex-end; }
+.overlay[data-position='top-left'] { align-items: flex-start; justify-content: flex-start; }
+.overlay[data-position='top-right'] { align-items: flex-start; justify-content: flex-end; }
+.overlay[data-position='bottom-left'] { align-items: flex-end; justify-content: flex-start; }
+.overlay[data-position='bottom-right'] { align-items: flex-end; justify-content: flex-end; }
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: var(--modal-width);
+  height: var(--modal-height, auto);
+  min-width: var(--modal-min-width, 0);
+  max-width: var(--modal-max-width, 95vw);
+  min-height: var(--modal-min-height, 0);
+  max-height: var(--modal-max-height, 90vh);
+  background: var(--modal-bg);
+  color: var(--modal-text-color);
+  border-radius: var(--modal-radius);
+  box-shadow: var(--modal-shadow);
+  border-width: var(--modal-border-width);
+  border-style: var(--modal-border-style);
+  border-color: var(--modal-border-color);
+  overflow: hidden;
+  outline: none;
+}
+
+.panel[data-appearance='glass'] {
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+}
+.panel[data-appearance='outlined'] {
+  box-shadow: none;
+}
+.panel[data-appearance='transparent'] {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* per-side border overrides (only apply when explicitly set) */
+.panel {
+  border-top-width: var(--modal-border-top-width, var(--modal-border-width));
+  border-top-style: var(--modal-border-top-style, var(--modal-border-style));
+  border-top-color: var(--modal-border-top-color, var(--modal-border-color));
+  border-right-width: var(--modal-border-right-width, var(--modal-border-width));
+  border-right-style: var(--modal-border-right-style, var(--modal-border-style));
+  border-right-color: var(--modal-border-right-color, var(--modal-border-color));
+  border-bottom-width: var(--modal-border-bottom-width, var(--modal-border-width));
+  border-bottom-style: var(--modal-border-bottom-style, var(--modal-border-style));
+  border-bottom-color: var(--modal-border-bottom-color, var(--modal-border-color));
+  border-left-width: var(--modal-border-left-width, var(--modal-border-width));
+  border-left-style: var(--modal-border-left-style, var(--modal-border-style));
+  border-left-color: var(--modal-border-left-color, var(--modal-border-color));
+}
+
+/* ---- animation: enter/exit transforms, keyed by data-anim-type + data-anim-state ---- */
+.panel[data-anim-state='entering'],
+.panel[data-anim-state='exiting'] {
+  transition: opacity var(--modal-anim-duration) var(--modal-anim-easing),
+    transform var(--modal-anim-duration) var(--modal-anim-easing);
+}
+
+.panel[data-anim-type='fade'][data-anim-state='entering-start'],
+.panel[data-anim-type='fade'][data-anim-state='exiting-end'] {
+  opacity: 0;
+}
+
+.panel[data-anim-type='scale'][data-anim-state='entering-start'],
+.panel[data-anim-type='scale'][data-anim-state='exiting-end'] {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.panel[data-anim-type='zoom'][data-anim-state='entering-start'],
+.panel[data-anim-type='zoom'][data-anim-state='exiting-end'] {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.panel[data-anim-type='spring'][data-anim-state='entering-start'],
+.panel[data-anim-type='spring'][data-anim-state='exiting-end'] {
+  opacity: 0;
+  transform: scale(0.9) translateY(8px);
+}
+.panel[data-anim-type='spring'][data-anim-state='entering'] {
+  transition-timing-function: var(--modal-anim-easing, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+
+.panel[data-anim-type='slide'][data-anim-state='entering-start'],
+.panel[data-anim-type='slide'][data-anim-state='exiting-end'] {
+  opacity: 0;
+}
+.overlay[data-position='top'] .panel[data-anim-type='slide'][data-anim-state='entering-start'],
+.overlay[data-position='top'] .panel[data-anim-type='slide'][data-anim-state='exiting-end'] {
+  transform: translateY(-24px);
+}
+.overlay[data-position='bottom'] .panel[data-anim-type='slide'][data-anim-state='entering-start'],
+.overlay[data-position='bottom'] .panel[data-anim-type='slide'][data-anim-state='exiting-end'] {
+  transform: translateY(24px);
+}
+.overlay[data-position='left'] .panel[data-anim-type='slide'][data-anim-state='entering-start'],
+.overlay[data-position='left'] .panel[data-anim-type='slide'][data-anim-state='exiting-end'] {
+  transform: translateX(-24px);
+}
+.overlay[data-position='right'] .panel[data-anim-type='slide'][data-anim-state='entering-start'],
+.overlay[data-position='right'] .panel[data-anim-type='slide'][data-anim-state='exiting-end'] {
+  transform: translateX(24px);
+}
+.overlay[data-position='center'] .panel[data-anim-type='slide'][data-anim-state='entering-start'],
+.overlay[data-position='center'] .panel[data-anim-type='slide'][data-anim-state='exiting-end'] {
+  transform: translateY(24px);
+}
+
+.panel[data-anim-type='none'] {
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .overlay {
+    transition-duration: 1ms !important;
+  }
+}
+
+/* ---- header ---- */
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: var(--modal-header-padding);
+  flex: 0 0 auto;
+}
+.header[data-header-align='center'] { justify-content: center; text-align: center; }
+.header[data-header-align='right'] { justify-content: flex-end; text-align: right; }
+.header[data-divider='true'] { border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
+
+.headerIcon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.headerText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--modal-text-color);
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--modal-muted-color);
+}
+
+/* ---- body ---- */
+.body {
+  flex: 1 1 auto;
+  padding: var(--modal-body-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--modal-body-spacing);
+  color: var(--modal-text-color);
+}
+.body[data-body-scrollable='true'] {
+  overflow-y: auto;
+  max-height: var(--modal-body-max-height, none);
+}
+.body[data-body-scrollable='false'] {
+  overflow: hidden;
+}
+
+/* ---- footer ---- */
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--modal-footer-padding);
+  flex: 0 0 auto;
+}
+.footer[data-footer-align='left'] { justify-content: flex-start; }
+.footer[data-footer-align='center'] { justify-content: center; }
+.footer[data-footer-align='right'] { justify-content: flex-end; }
+.footer[data-footer-align='space-between'] { justify-content: space-between; }
+.footer[data-divider='true'] { border-top: 1px solid rgba(0, 0, 0, 0.08); }
+.footer[data-footer-sticky='true'] {
+  position: sticky;
+  bottom: 0;
+  background: inherit;
+}
+
+/* ---- close button ---- */
+.closeButton {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--modal-muted-color);
+  border-radius: 999px;
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+.closeButton:hover { background: rgba(0, 0, 0, 0.12); }
+.closeButton:focus-visible {
+  outline: 2px solid var(--modal-accent-color);
+  outline-offset: 2px;
+}
+
+.closeButton[data-close-size='sm'] { width: 28px; height: 28px; font-size: 14px; }
+.closeButton[data-close-size='md'] { width: 32px; height: 32px; font-size: 16px; }
+.closeButton[data-close-size='lg'] { width: 38px; height: 38px; font-size: 18px; }
+
+.closeButton[data-close-position='top-right'] { top: 12px; right: 12px; }
+.closeButton[data-close-position='top-left'] { top: 12px; left: 12px; }
+.closeButton[data-close-position='inside'] { top: 12px; right: 12px; }
+.closeButton[data-close-position='outside'] { top: -14px; right: -14px; }
+
+.closeButton[data-close-anim='spin']:hover { transform: rotate(90deg); }
+.closeButton[data-close-anim='scale']:hover { transform: scale(1.1); }
+
+/* ---- dark color scheme convenience ---- */
+.panel[data-color-scheme='dark'] .closeButton {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+}
+.panel[data-color-scheme='dark'] .closeButton:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+.panel[data-color-scheme='dark'] .header[data-divider='true'],
+.panel[data-color-scheme='dark'] .footer[data-divider='true'] {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Visually-hidden helper for the accessible label when no title is shown */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,0 +1,787 @@
+/**
+ * Navbar.module.css
+ *
+ * Every visual value here reads from a `--ishan-navbar-*` custom property set
+ * inline by Navbar.tsx from the resolved config. This file defines *how* those
+ * values are applied (layout, states, transitions) — never a literal value
+ * that should have come from config. Fallbacks after each `var()` exist as a
+ * defensive baseline (SSR streaming) AND as the "automatic fallback" layer
+ * for the per-key color overrides in appearance.colors: every
+ * --ishan-navbar-color-* var is only ever set inline when a consumer
+ * explicitly provides that color key, so its var() fallback chain here is
+ * what makes every existing config (which never sets `colors`) render
+ * pixel-identical to before this feature existed.
+ */
+
+.root {
+  position: relative;
+  z-index: 100;
+  width: 100%;
+  background: transparent;
+  font-family: var(--ishan-navbar-font, inherit);
+  transition: transform var(--ishan-navbar-duration, 0.4s) cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.root[data-position="sticky"] {
+  position: sticky;
+  top: 0;
+}
+
+.root[data-position="floating"] {
+  position: sticky;
+  top: 12px;
+  padding: 0 12px;
+  background: transparent;
+}
+
+.root[data-position="static"] {
+  position: static;
+}
+
+.root[data-hidden="true"] {
+  transform: translateY(-120%);
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: var(--ishan-navbar-alignment, space-between);
+  max-width: var(--ishan-navbar-container-width, 1200px);
+  height: var(--ishan-navbar-height, 72px);
+  margin: 0 auto;
+  padding: 0 var(--ishan-navbar-spacing, 24px);
+  border-radius: var(--ishan-navbar-radius-navbar, var(--ishan-navbar-radius, 0px));
+  background-color: var(--ishan-navbar-bg, transparent);
+  border: 1px solid var(--ishan-navbar-color-border, var(--ishan-navbar-border-color, transparent));
+  box-shadow: var(--ishan-navbar-shadow, none);
+  -webkit-backdrop-filter: var(--ishan-navbar-backdrop, none);
+  backdrop-filter: var(--ishan-navbar-backdrop, none);
+  transition:
+    background-color var(--ishan-navbar-scroll-duration, var(--ishan-navbar-duration, 0.4s))
+      var(--ishan-navbar-scroll-easing, ease),
+    border-color var(--ishan-navbar-scroll-duration, var(--ishan-navbar-duration, 0.4s))
+      var(--ishan-navbar-scroll-easing, ease),
+    box-shadow var(--ishan-navbar-scroll-duration, var(--ishan-navbar-duration, 0.4s))
+      var(--ishan-navbar-scroll-easing, ease),
+    backdrop-filter var(--ishan-navbar-scroll-duration, var(--ishan-navbar-duration, 0.4s))
+      var(--ishan-navbar-scroll-easing, ease);
+}
+
+/* ---------- Independent layout system (Features 1-3) ---------- */
+
+/*
+ * Invisible by default: children of these wrappers participate directly in
+ * .container's flex layout exactly as if the wrapper didn't exist, which is
+ * what keeps the original single-alignment flex layout byte-for-byte
+ * unchanged for every config that never sets layout.brand/navigation/actions.
+ * NavbarActions reuses the pre-existing .links class (unchanged, always
+ * display:flex) rather than this default-contents behavior, since it isn't
+ * a new wrapper — see Navbar.tsx.
+ */
+.layoutBrand,
+.layoutNavigation {
+  display: contents;
+}
+
+.container[data-layout="grid"] .layoutBrand,
+.container[data-layout="grid"] .layoutNavigation,
+.container[data-layout="grid"] .layoutActions {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.container[data-layout="grid"] .layoutBrand {
+  flex: 0 0 var(--ishan-navbar-brand-width, auto);
+  justify-content: var(--ishan-navbar-brand-align, flex-start);
+  margin-right: var(--ishan-navbar-section-gap, 24px);
+}
+
+.container[data-layout="grid"] .layoutNavigation {
+  flex: 1 1 var(--ishan-navbar-nav-width, auto);
+  justify-content: var(--ishan-navbar-nav-align, center);
+  margin-right: var(--ishan-navbar-nav-actions-gap, 24px);
+}
+
+/*
+ * Navigation and actions can never visually collapse into one group: the
+ * margin above guarantees a persistent gap even when navigation renders
+ * nothing (mobile), and actions never grows to fill space (flex: 0 0 ...),
+ * so it never expands toward navigation either.
+ */
+.container[data-layout="grid"] .layoutActions {
+  flex: 0 0 var(--ishan-navbar-actions-width, auto);
+  justify-content: var(--ishan-navbar-actions-align, flex-end);
+  margin-right: 0;
+}
+
+/* ---------- Brand ---------- */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--ishan-navbar-logo-gap, 10px);
+  color: var(--ishan-navbar-color-logo, inherit);
+  text-decoration: none;
+  font-family: var(--ishan-navbar-typo-logo-family, inherit);
+  font-weight: var(--ishan-navbar-typo-logo-weight, var(--ishan-navbar-logo-weight, 600));
+  font-size: var(--ishan-navbar-typo-logo-size, var(--ishan-navbar-logo-text-size, 15px));
+  letter-spacing: var(--ishan-navbar-typo-logo-spacing, -0.01em);
+  text-transform: var(--ishan-navbar-typo-logo-transform, none);
+  border-radius: 8px;
+}
+
+.brand:focus-visible {
+  outline: 2px solid var(--ishan-navbar-accent, #6c5ce7);
+  outline-offset: 4px;
+}
+
+.brandLogoImg {
+  display: block;
+  height: var(--ishan-navbar-logo-size, 28px);
+  width: auto;
+}
+
+/* ---------- Desktop links ---------- */
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: var(--ishan-navbar-nav-gap, 4px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.linkItem {
+  position: relative;
+}
+
+.linkAnchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--ishan-navbar-nav-padding-y, 8px) var(--ishan-navbar-nav-padding-x, 14px);
+  border-radius: var(--ishan-navbar-radius-links, 999px);
+  font-family: var(--ishan-navbar-typo-navigation-family, inherit);
+  font-size: var(--ishan-navbar-typo-navigation-size, 14px);
+  font-weight: var(--ishan-navbar-typo-navigation-weight, 500);
+  letter-spacing: var(--ishan-navbar-typo-navigation-spacing, normal);
+  text-transform: var(--ishan-navbar-typo-navigation-transform, none);
+  color: var(--ishan-navbar-color-text, var(--ishan-navbar-fg-muted, currentColor));
+  background: transparent;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.linkAnchor:hover {
+  opacity: 1;
+  color: var(
+    --ishan-navbar-color-hover-text,
+    var(--ishan-navbar-color-text, var(--ishan-navbar-fg-muted, currentColor))
+  );
+  background: var(--ishan-navbar-color-hover-bg, transparent);
+}
+
+.linkAnchor:focus-visible {
+  outline: 2px solid var(--ishan-navbar-accent, #6c5ce7);
+  outline-offset: 2px;
+}
+
+.linkAnchor[data-active="true"] {
+  opacity: 1;
+  color: var(--ishan-navbar-color-active-text, var(--ishan-navbar-accent-contrast, inherit));
+  background: var(--ishan-navbar-color-active-bg, transparent);
+}
+
+.activeIndicator {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--ishan-navbar-radius-links, 999px);
+  background: var(--ishan-navbar-accent, #6c5ce7);
+  opacity: 0.14;
+}
+
+/* ---------- Dropdown (desktop) ---------- */
+
+.dropdownContainer {
+  position: relative;
+}
+
+.dropdownChevron {
+  transition: transform 0.2s ease;
+}
+
+.dropdownChevron[data-open="true"] {
+  transform: rotate(180deg);
+}
+
+.dropdownPanel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 200px;
+  padding: 6px;
+  border-radius: var(--ishan-navbar-radius-dropdown, 14px);
+  /* Inherits the current appearance variant automatically — same background/
+     blur/border vars the navbar container itself uses, no separate theme. */
+  background: var(--ishan-navbar-menu-bg, #fff);
+  border: 1px solid var(--ishan-navbar-color-border, var(--ishan-navbar-border-color, transparent));
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+  -webkit-backdrop-filter: var(--ishan-navbar-backdrop, none);
+  backdrop-filter: var(--ishan-navbar-backdrop, none);
+  transform-origin: top left;
+}
+
+.dropdownItem {
+  display: flex;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-family: var(--ishan-navbar-typo-dropdown-family, inherit);
+  font-size: var(--ishan-navbar-typo-dropdown-size, 13.5px);
+  font-weight: var(--ishan-navbar-typo-dropdown-weight, normal);
+  letter-spacing: var(--ishan-navbar-typo-dropdown-spacing, normal);
+  text-transform: var(--ishan-navbar-typo-dropdown-transform, none);
+  color: var(--ishan-navbar-color-text, inherit);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dropdownItem:hover,
+.dropdownItem:focus-visible {
+  color: var(--ishan-navbar-color-hover-text, var(--ishan-navbar-color-text, inherit));
+  background: var(
+    --ishan-navbar-color-hover-bg,
+    color-mix(in srgb, var(--ishan-navbar-accent, #6c5ce7) 10%, transparent)
+  );
+  outline: none;
+}
+
+.dropdownItem[data-active="true"] {
+  color: var(--ishan-navbar-color-active-text, var(--ishan-navbar-accent, #6c5ce7));
+  background: var(--ishan-navbar-color-active-bg, transparent);
+}
+
+/* ---------- CTA ---------- */
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(9px * var(--ishan-navbar-height-scale, 1)) calc(18px * var(--ishan-navbar-height-scale, 1));
+  border-radius: var(--ishan-navbar-radius-cta, calc(var(--ishan-navbar-radius, 16px) * 0.65));
+  font-family: var(--ishan-navbar-typo-cta-family, inherit);
+  font-size: var(--ishan-navbar-typo-cta-size, 14px);
+  font-weight: var(--ishan-navbar-typo-cta-weight, 600);
+  letter-spacing: var(--ishan-navbar-typo-cta-spacing, normal);
+  text-transform: var(--ishan-navbar-typo-cta-transform, none);
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--ishan-navbar-accent, #6c5ce7);
+  outline-offset: 3px;
+}
+
+.cta[data-variant="solid"] {
+  background: var(--ishan-navbar-color-cta-bg, var(--ishan-navbar-accent, #6c5ce7));
+  color: var(--ishan-navbar-color-cta-text, var(--ishan-navbar-accent-contrast, #fff));
+  border-color: var(--ishan-navbar-color-cta-border, transparent);
+}
+
+.cta[data-variant="solid"]:hover {
+  background: var(--ishan-navbar-color-cta-hover-bg, var(--ishan-navbar-color-cta-bg, var(--ishan-navbar-accent, #6c5ce7)));
+  color: var(--ishan-navbar-color-cta-hover-text, var(--ishan-navbar-color-cta-text, var(--ishan-navbar-accent-contrast, #fff)));
+  border-color: var(--ishan-navbar-color-cta-hover-border, var(--ishan-navbar-color-cta-border, transparent));
+}
+
+.cta[data-variant="outline"] {
+  background: var(--ishan-navbar-color-cta-bg, transparent);
+  border-color: var(--ishan-navbar-color-cta-border, var(--ishan-navbar-accent, #6c5ce7));
+  color: var(--ishan-navbar-color-cta-text, var(--ishan-navbar-accent, #6c5ce7));
+}
+
+.cta[data-variant="outline"]:hover {
+  background: var(--ishan-navbar-color-cta-hover-bg, var(--ishan-navbar-color-cta-bg, transparent));
+  border-color: var(--ishan-navbar-color-cta-hover-border, var(--ishan-navbar-color-cta-border, var(--ishan-navbar-accent, #6c5ce7)));
+  color: var(--ishan-navbar-color-cta-hover-text, var(--ishan-navbar-color-cta-text, var(--ishan-navbar-accent, #6c5ce7)));
+}
+
+.cta[data-variant="glass"] {
+  background: var(
+    --ishan-navbar-color-cta-bg,
+    color-mix(in srgb, var(--ishan-navbar-accent, #6c5ce7) 16%, transparent)
+  );
+  color: var(--ishan-navbar-color-cta-text, var(--ishan-navbar-accent, #6c5ce7));
+  border-color: var(--ishan-navbar-color-cta-border, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.cta[data-variant="glass"]:hover {
+  background: var(
+    --ishan-navbar-color-cta-hover-bg,
+    color-mix(in srgb, var(--ishan-navbar-accent, #6c5ce7) 26%, transparent)
+  );
+  color: var(--ishan-navbar-color-cta-hover-text, var(--ishan-navbar-color-cta-text, var(--ishan-navbar-accent, #6c5ce7)));
+  border-color: var(--ishan-navbar-color-cta-hover-border, var(--ishan-navbar-color-cta-border, transparent));
+}
+
+.cta[data-variant="gradient"] {
+  background: var(
+    --ishan-navbar-color-cta-bg,
+    linear-gradient(135deg, var(--ishan-navbar-accent, #6c5ce7), var(--ishan-navbar-accent-secondary, #a29bfe))
+  );
+  color: var(--ishan-navbar-color-cta-text, var(--ishan-navbar-accent-contrast, #fff));
+  border-color: var(--ishan-navbar-color-cta-border, transparent);
+}
+
+.cta[data-variant="gradient"]:hover {
+  background: var(
+    --ishan-navbar-color-cta-hover-bg,
+    var(
+      --ishan-navbar-color-cta-bg,
+      linear-gradient(135deg, var(--ishan-navbar-accent, #6c5ce7), var(--ishan-navbar-accent-secondary, #a29bfe))
+    )
+  );
+  color: var(--ishan-navbar-color-cta-hover-text, var(--ishan-navbar-color-cta-text, var(--ishan-navbar-accent-contrast, #fff)));
+  border-color: var(--ishan-navbar-color-cta-hover-border, var(--ishan-navbar-color-cta-border, transparent));
+}
+
+/* ---------- Profile ---------- */
+
+.profile {
+  position: relative;
+}
+
+.profileTrigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--ishan-navbar-radius-profile, 999px);
+}
+
+.profileTrigger:focus-visible {
+  outline: 2px solid var(--ishan-navbar-accent, #6c5ce7);
+  outline-offset: 2px;
+}
+
+.avatar {
+  width: calc(32px * var(--ishan-navbar-height-scale, 1));
+  height: calc(32px * var(--ishan-navbar-height-scale, 1));
+  border-radius: var(--ishan-navbar-radius-profile, 50%);
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--ishan-navbar-color-profile-border, transparent);
+}
+
+.avatarFallback {
+  width: calc(32px * var(--ishan-navbar-height-scale, 1));
+  height: calc(32px * var(--ishan-navbar-height-scale, 1));
+  border-radius: var(--ishan-navbar-radius-profile, 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ishan-navbar-color-profile-bg, var(--ishan-navbar-accent, #6c5ce7));
+  color: var(--ishan-navbar-color-profile-icon, var(--ishan-navbar-accent-contrast, #fff));
+  border: 1px solid var(--ishan-navbar-color-profile-border, transparent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.profileMenu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 200px;
+  padding: 6px;
+  border-radius: var(--ishan-navbar-radius-dropdown, 14px);
+  background: var(--ishan-navbar-menu-bg, #fff);
+  border: 1px solid var(--ishan-navbar-color-border, var(--ishan-navbar-border-color, rgba(0, 0, 0, 0.08)));
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+  transform-origin: top right;
+}
+
+.profileMenuHeader {
+  padding: 10px 12px 8px;
+}
+
+.profileMenuName {
+  font-family: var(--ishan-navbar-typo-profile-family, inherit);
+  font-size: var(--ishan-navbar-typo-profile-size, 13px);
+  font-weight: var(--ishan-navbar-typo-profile-weight, 600);
+  letter-spacing: var(--ishan-navbar-typo-profile-spacing, normal);
+  text-transform: var(--ishan-navbar-typo-profile-transform, none);
+}
+
+.profileMenuEmail {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.profileMenuDivider {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--ishan-navbar-color-border, var(--ishan-navbar-border-color, rgba(0, 0, 0, 0.08)));
+}
+
+.profileMenuItem {
+  display: flex;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-family: var(--ishan-navbar-typo-profile-family, inherit);
+  font-size: var(--ishan-navbar-typo-profile-size, 13.5px);
+  font-weight: var(--ishan-navbar-typo-profile-weight, normal);
+  letter-spacing: var(--ishan-navbar-typo-profile-spacing, normal);
+  text-transform: var(--ishan-navbar-typo-profile-transform, none);
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.profileMenuItem:hover,
+.profileMenuItem:focus-visible {
+  background: var(
+    --ishan-navbar-color-hover-bg,
+    color-mix(in srgb, var(--ishan-navbar-accent, #6c5ce7) 10%, transparent)
+  );
+  outline: none;
+}
+
+/* ---------- Mobile toggle ---------- */
+
+.mobileToggle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: calc(40px * var(--ishan-navbar-height-scale, 1));
+  height: calc(40px * var(--ishan-navbar-height-scale, 1));
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.mobileToggle:focus-visible {
+  outline: 2px solid var(--ishan-navbar-accent, #6c5ce7);
+  outline-offset: 2px;
+}
+
+.hamburgerLine {
+  display: block;
+  width: calc(18px * var(--ishan-navbar-height-scale, 1));
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ishan-navbar-color-icons, currentColor);
+  transform-origin: center;
+}
+
+/* ---------- Mobile overlay ---------- */
+
+.mobileBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  background: rgba(0, 0, 0, 0.32);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.mobileMenu {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  max-height: min(80vh, 520px);
+  padding: 16px;
+  overflow-y: auto;
+  background: var(--ishan-navbar-menu-bg, #fff);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.mobileMenu[data-dock="top"] {
+  top: 0;
+  border-radius: 0 0 var(--ishan-navbar-radius-mobile-menu, 20px) var(--ishan-navbar-radius-mobile-menu, 20px);
+}
+
+.mobileMenu[data-dock="bottom"] {
+  bottom: 0;
+  border-radius: var(--ishan-navbar-radius-mobile-menu, 20px) var(--ishan-navbar-radius-mobile-menu, 20px) 0 0;
+}
+
+.mobileMenuList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mobileMenuLink {
+  display: block;
+  padding: 14px 12px;
+  border-radius: var(--ishan-navbar-radius-links, 12px);
+  font-family: var(--ishan-navbar-typo-navigation-family, inherit);
+  font-size: 16px;
+  font-weight: var(--ishan-navbar-typo-navigation-weight, 500);
+  letter-spacing: var(--ishan-navbar-typo-navigation-spacing, normal);
+  text-transform: var(--ishan-navbar-typo-navigation-transform, none);
+  color: var(--ishan-navbar-color-text, inherit);
+  background: transparent;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mobileMenuLink[data-active="true"] {
+  background: var(
+    --ishan-navbar-color-active-bg,
+    color-mix(in srgb, var(--ishan-navbar-accent, #6c5ce7) 12%, transparent)
+  );
+  color: var(--ishan-navbar-color-active-text, var(--ishan-navbar-accent, #6c5ce7));
+}
+
+.mobileMenuLink:focus-visible {
+  outline: 2px solid var(--ishan-navbar-accent, #6c5ce7);
+  outline-offset: -2px;
+}
+
+/* Mobile accordion (dropdown items nested under a mobileMenuLink trigger) */
+
+.accordionList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0 0 0 16px;
+  overflow: hidden;
+}
+
+.accordionLink {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 10px 12px;
+  border-radius: var(--ishan-navbar-radius-links, 10px);
+  font-size: 14.5px;
+  color: var(--ishan-navbar-color-text, inherit);
+  opacity: 0.85;
+  text-decoration: none;
+}
+
+.accordionLink[data-active="true"] {
+  opacity: 1;
+  color: var(--ishan-navbar-color-active-text, var(--ishan-navbar-accent, #6c5ce7));
+  background: var(
+    --ishan-navbar-color-active-bg,
+    color-mix(in srgb, var(--ishan-navbar-accent, #6c5ce7) 10%, transparent)
+  );
+}
+
+.accordionLink:focus-visible {
+  outline: 2px solid var(--ishan-navbar-accent, #6c5ce7);
+  outline-offset: -2px;
+}
+
+.mobileCtaWrapper {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ishan-navbar-color-border, var(--ishan-navbar-border-color, rgba(0, 0, 0, 0.08)));
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Search trigger (Feature 2) ---------- */
+
+.searchTrigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 1px solid var(--ishan-navbar-color-border, var(--ishan-navbar-border-color, rgba(0, 0, 0, 0.08)));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ishan-navbar-color-icons, var(--ishan-navbar-fg-muted, currentColor));
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.searchTrigger:hover {
+  opacity: 1;
+  background: var(--ishan-navbar-color-hover-bg, transparent);
+}
+
+.searchTrigger:focus-visible {
+  outline: 2px solid var(--ishan-navbar-accent, #6c5ce7);
+  outline-offset: 2px;
+}
+
+.searchTriggerHint {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.7;
+}
+
+/* ---------- Command palette (Feature 2) ---------- */
+
+.commandPalette {
+  position: fixed;
+  top: min(15vh, 120px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 130;
+  display: flex;
+  flex-direction: column;
+  width: min(600px, calc(100vw - 32px));
+  max-height: min(60vh, 420px);
+  border-radius: var(--ishan-navbar-radius-dropdown, 16px);
+  overflow: hidden;
+  background: var(--ishan-navbar-menu-bg, #fff);
+  border: 1px solid var(--ishan-navbar-color-border, var(--ishan-navbar-border-color, rgba(0, 0, 0, 0.08)));
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+}
+
+.commandPaletteInputRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ishan-navbar-color-border, var(--ishan-navbar-border-color, rgba(0, 0, 0, 0.08)));
+  flex-shrink: 0;
+}
+
+.commandPaletteSearchIcon {
+  flex-shrink: 0;
+  color: var(--ishan-navbar-color-icons, var(--ishan-navbar-fg-muted, currentColor));
+  opacity: 0.6;
+}
+
+.commandPaletteInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  color: var(--ishan-navbar-color-text, inherit);
+}
+
+.commandPaletteInput::placeholder {
+  color: var(--ishan-navbar-color-text, currentColor);
+  opacity: 0.45;
+}
+
+.commandPaletteEscHint {
+  flex-shrink: 0;
+  padding: 3px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--ishan-navbar-color-border, var(--ishan-navbar-border-color, rgba(0, 0, 0, 0.12)));
+  font-size: 11px;
+  font-family: inherit;
+  opacity: 0.6;
+}
+
+.commandPaletteList {
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.commandPaletteEmpty {
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 13.5px;
+  opacity: 0.5;
+}
+
+.commandPaletteItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-size: 14px;
+  text-align: left;
+  color: var(--ishan-navbar-color-text, inherit);
+  cursor: pointer;
+}
+
+.commandPaletteItem[data-selected="true"] {
+  background: var(
+    --ishan-navbar-color-hover-bg,
+    color-mix(in srgb, var(--ishan-navbar-accent, #6c5ce7) 10%, transparent)
+  );
+}
+
+.commandPaletteItemGroup {
+  flex-shrink: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.5;
+  order: 2;
+}
+
+.commandPaletteItemLabel {
+  order: 1;
+}
+
+.commandPaletteHighlight {
+  background: color-mix(in srgb, var(--ishan-navbar-accent, #6c5ce7) 30%, transparent);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .container,
+  .linkAnchor,
+  .hamburgerLine {
+    transition-duration: 0.01ms !important;
+  }
+}

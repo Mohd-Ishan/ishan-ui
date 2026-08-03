@@ -1,0 +1,196 @@
+/**
+ * Button.module.css
+ *
+ * Same convention as Navbar.module.css: every `--ishan-button-*` var is set
+ * inline by Button.tsx from resolved config/props; the var()-fallback chain
+ * here is what makes every color/typography/radius override optional.
+ */
+
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ishan-button-gap, 8px);
+  padding: var(--ishan-button-padding-y, 9px) var(--ishan-button-padding-x, 18px);
+  border-radius: var(--ishan-button-radius, 10px);
+  border: 1px solid transparent;
+  font-family: var(--ishan-button-typo-family, inherit);
+  font-size: var(--ishan-button-typo-size, var(--ishan-button-font-size, 14px));
+  font-weight: var(--ishan-button-typo-weight, 600);
+  letter-spacing: var(--ishan-button-typo-spacing, normal);
+  text-transform: var(--ishan-button-typo-transform, none);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ishan-button-accent, #6c5ce7);
+  outline-offset: 2px;
+}
+
+.button[data-full-width="true"] {
+  width: 100%;
+}
+
+.button[data-loading="true"] {
+  cursor: progress;
+}
+
+.button:disabled,
+.button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.label {
+  display: inline-flex;
+}
+
+.spinner {
+  color: currentColor;
+}
+
+/* ---------- solid ---------- */
+
+.button[data-variant="solid"] {
+  background: var(--ishan-button-color-bg, var(--ishan-button-accent, #6c5ce7));
+  color: var(--ishan-button-color-text, #ffffff);
+  border-color: var(--ishan-button-color-border, transparent);
+}
+
+.button[data-variant="solid"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(
+    --ishan-button-color-hover-bg,
+    var(--ishan-button-color-bg, var(--ishan-button-accent, #6c5ce7))
+  );
+  color: var(--ishan-button-color-hover-text, var(--ishan-button-color-text, #ffffff));
+  border-color: var(--ishan-button-color-hover-border, var(--ishan-button-color-border, transparent));
+}
+
+.button[data-variant="solid"]:active:not(:disabled):not([aria-disabled="true"]) {
+  background: var(
+    --ishan-button-color-active-bg,
+    var(--ishan-button-color-hover-bg, var(--ishan-button-accent, #6c5ce7))
+  );
+  color: var(--ishan-button-color-active-text, var(--ishan-button-color-text, #ffffff));
+  border-color: var(--ishan-button-color-active-border, transparent);
+}
+
+/* ---------- outline ---------- */
+
+.button[data-variant="outline"] {
+  background: var(--ishan-button-color-bg, transparent);
+  color: var(--ishan-button-color-text, var(--ishan-button-accent, #6c5ce7));
+  border-color: var(--ishan-button-color-border, var(--ishan-button-accent, #6c5ce7));
+}
+
+.button[data-variant="outline"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(
+    --ishan-button-color-hover-bg,
+    color-mix(in srgb, var(--ishan-button-accent, #6c5ce7) 10%, transparent)
+  );
+  color: var(--ishan-button-color-hover-text, var(--ishan-button-color-text, var(--ishan-button-accent, #6c5ce7)));
+  border-color: var(
+    --ishan-button-color-hover-border,
+    var(--ishan-button-color-border, var(--ishan-button-accent, #6c5ce7))
+  );
+}
+
+.button[data-variant="outline"]:active:not(:disabled):not([aria-disabled="true"]) {
+  background: var(
+    --ishan-button-color-active-bg,
+    color-mix(in srgb, var(--ishan-button-accent, #6c5ce7) 18%, transparent)
+  );
+}
+
+/* ---------- ghost ---------- */
+
+.button[data-variant="ghost"] {
+  background: var(--ishan-button-color-bg, transparent);
+  color: var(--ishan-button-color-text, var(--ishan-button-accent, #6c5ce7));
+  border-color: transparent;
+}
+
+.button[data-variant="ghost"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(
+    --ishan-button-color-hover-bg,
+    color-mix(in srgb, var(--ishan-button-accent, #6c5ce7) 10%, transparent)
+  );
+  color: var(--ishan-button-color-hover-text, var(--ishan-button-color-text, var(--ishan-button-accent, #6c5ce7)));
+}
+
+.button[data-variant="ghost"]:active:not(:disabled):not([aria-disabled="true"]) {
+  background: var(
+    --ishan-button-color-active-bg,
+    color-mix(in srgb, var(--ishan-button-accent, #6c5ce7) 18%, transparent)
+  );
+}
+
+/* ---------- glass ---------- */
+
+.button[data-variant="glass"] {
+  background: var(
+    --ishan-button-color-bg,
+    color-mix(in srgb, var(--ishan-button-accent, #6c5ce7) 16%, transparent)
+  );
+  color: var(--ishan-button-color-text, var(--ishan-button-accent, #6c5ce7));
+  border-color: var(--ishan-button-color-border, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.button[data-variant="glass"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(
+    --ishan-button-color-hover-bg,
+    color-mix(in srgb, var(--ishan-button-accent, #6c5ce7) 26%, transparent)
+  );
+  color: var(--ishan-button-color-hover-text, var(--ishan-button-color-text, var(--ishan-button-accent, #6c5ce7)));
+}
+
+/* ---------- gradient ---------- */
+
+.button[data-variant="gradient"] {
+  background: var(
+    --ishan-button-color-bg,
+    linear-gradient(135deg, var(--ishan-button-accent, #6c5ce7), var(--ishan-button-accent-secondary, #a29bfe))
+  );
+  color: var(--ishan-button-color-text, #ffffff);
+  border-color: var(--ishan-button-color-border, transparent);
+}
+
+.button[data-variant="gradient"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  filter: brightness(1.06);
+}
+
+/* ---------- link ---------- */
+
+.button[data-variant="link"] {
+  background: transparent;
+  color: var(--ishan-button-color-text, var(--ishan-button-accent, #6c5ce7));
+  border-color: transparent;
+  padding-left: 2px;
+  padding-right: 2px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.button[data-variant="link"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  color: var(--ishan-button-color-hover-text, var(--ishan-button-color-text, var(--ishan-button-accent, #6c5ce7)));
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition-duration: 0.01ms !important;
+  }
+}

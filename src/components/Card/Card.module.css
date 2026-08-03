@@ -1,0 +1,573 @@
+/* ============================================================================
+ * DESIGN TOKENS
+ *
+ * All sizing/spacing/radius/shadow tokens are defined once here and consumed
+ * as CSS variables everywhere else in this file. Card.tsx sets per-instance
+ * variables (e.g. --card-radius, --card-bg) inline based on resolved config;
+ * these :root values are only the fallback floor.
+ * ==========================================================================*/
+
+:root {
+  --card-space-xs: 0.5rem;
+  --card-space-sm: 0.75rem;
+  --card-space-md: 1.25rem;
+  --card-space-lg: 2rem;
+  --card-space-xl: 3rem;
+
+  --card-radius-sm: 0.375rem;
+  --card-radius-md: 0.75rem;
+  --card-radius-lg: 1.25rem;
+  --card-radius-xl: 1.75rem;
+  --card-radius-pill: 999px;
+
+  --card-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 1px rgba(15, 23, 42, 0.04);
+  --card-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.05);
+  --card-shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12), 0 4px 8px rgba(15, 23, 42, 0.06);
+  --card-shadow-xl: 0 24px 56px rgba(15, 23, 42, 0.16), 0 8px 16px rgba(15, 23, 42, 0.08);
+  --card-shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  --card-bg: #ffffff;
+  --card-text: #0f172a;
+  --card-text-muted: #64748b;
+  --card-border: rgba(15, 23, 42, 0.08);
+
+  --card-transition-duration: 0.25s;
+  --card-transition-easing: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============================================================================
+ * ROOT
+ * ==========================================================================*/
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: var(--card-align-items, stretch);
+  justify-content: var(--card-justify-content, flex-start);
+  width: var(--card-width, 100%);
+  height: var(--card-height, auto);
+  min-height: var(--card-min-height, auto);
+  min-width: var(--card-min-width, auto);
+  max-width: var(--card-max-width, none);
+  max-height: var(--card-max-height, none);
+  background: var(--card-bg);
+  color: var(--card-text);
+  border-radius: var(--card-radius, var(--card-radius-md));
+  border-width: var(--card-border-width, 1px);
+  border-style: var(--card-border-style, solid);
+  border-color: var(--card-border-color, var(--card-border));
+  box-shadow: var(--card-shadow, var(--card-shadow-sm));
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    box-shadow var(--card-transition-duration) var(--card-transition-easing),
+    transform var(--card-transition-duration) var(--card-transition-easing),
+    background-color var(--card-transition-duration) var(--card-transition-easing),
+    border-color var(--card-transition-duration) var(--card-transition-easing);
+}
+
+.card[data-direction='horizontal'],
+.card[data-direction='image-left'],
+.card[data-direction='image-right'] {
+  flex-direction: row;
+}
+
+.card[data-direction='horizontal-reverse'],
+.card[data-direction='image-right'] {
+  flex-direction: row-reverse;
+}
+
+.card[data-direction='vertical-reverse'] {
+  flex-direction: column-reverse;
+}
+
+.card[data-direction='image-bottom'] {
+  flex-direction: column-reverse;
+}
+
+.card[data-direction='overlay'],
+.card[data-direction='image-background'] {
+  display: grid;
+  grid-template-areas: 'stack';
+}
+
+.card[data-direction='overlay'] > *,
+.card[data-direction='image-background'] > * {
+  grid-area: stack;
+}
+
+.card[data-direction='split'] {
+  display: grid;
+  grid-template-columns: var(--card-split-columns, 1fr 1fr);
+  align-items: stretch;
+}
+
+.card[data-direction='centered'] {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ============================================================================
+ * APPEARANCE VARIANTS
+ * ==========================================================================*/
+
+.card[data-appearance='glass'] {
+  background: var(--card-bg);
+  backdrop-filter: blur(var(--card-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--card-blur, 12px));
+}
+
+.card[data-appearance='transparent'] {
+  background: transparent;
+  box-shadow: none;
+}
+
+.card[data-appearance='outline'] {
+  background: transparent;
+  box-shadow: none;
+}
+
+.card[data-appearance='gradient'] {
+  background: var(--card-gradient, var(--card-bg));
+}
+
+.card[data-appearance='soft'] {
+  border-color: transparent;
+}
+
+.card[data-appearance='elevated'] {
+  border-color: transparent;
+}
+
+/* ============================================================================
+ * INTERACTION STATES
+ * ==========================================================================*/
+
+.card[data-clickable='true'] {
+  cursor: pointer;
+}
+
+.card[data-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.card[data-loading='true'] {
+  cursor: wait;
+}
+
+.card[data-loading='true'] > *:not(.loadingOverlay):not(.skeleton) {
+  pointer-events: none;
+}
+
+.card[data-selected='true'] {
+  border-color: var(--card-accent, #6366f1);
+  box-shadow: 0 0 0 2px var(--card-accent, #6366f1);
+}
+
+.card[data-focus-ring='true']:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--card-focus-color, rgba(99, 102, 241, 0.45));
+}
+
+/* ============================================================================
+ * HOVER EFFECTS
+ *
+ * Effects that touch different CSS properties (shadow, glow, border color,
+ * background) are safe to layer purely in CSS via space-separated
+ * data-hover attribute selectors — they never fight over the same property.
+ *
+ * Effects that all animate `transform` (lift, scale, rotate, tilt) CANNOT
+ * compose this way: whichever CSS rule comes last in the stylesheet would
+ * simply overwrite the others' transform value instead of combining with
+ * it. Those four are instead computed as a single combined transform in
+ * Card.tsx and driven through Framer Motion's `whileHover`, which merges
+ * x/y/scale/rotate into one matrix automatically.
+ * ==========================================================================*/
+
+@media (hover: hover) {
+  .card[data-hover~='shadow']:hover {
+    box-shadow: var(--card-shadow-hover, var(--card-shadow-md));
+  }
+
+  .card[data-hover~='glow']:hover {
+    box-shadow: 0 0 0 1px var(--card-accent, #6366f1), 0 0 24px var(--card-accent, #6366f1);
+  }
+
+  .card[data-hover~='border-animation']:hover {
+    border-color: var(--card-accent, #6366f1);
+  }
+
+  .card[data-hover~='background']:hover {
+    background: var(--card-bg-hover, var(--card-bg));
+  }
+}
+
+/* ============================================================================
+ * BACKGROUND LAYER
+ *
+ * Renders behind all content when background.kind is 'image' or 'video' —
+ * fully independent from the `media` section, per spec section 3.
+ * ==========================================================================*/
+
+.backgroundLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.backgroundImage {
+  position: absolute;
+  inset: 0;
+  background-image: var(--bg-image);
+  background-position: var(--bg-position, center);
+  background-size: var(--bg-size, cover);
+  background-repeat: var(--bg-repeat, no-repeat);
+  background-attachment: var(--bg-attachment, scroll);
+}
+
+.backgroundVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--bg-size, cover);
+}
+
+.backgroundOverlay {
+  position: absolute;
+  inset: 0;
+}
+
+/* ============================================================================
+ * MEDIA
+ * ==========================================================================*/
+
+.media {
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+  width: var(--media-width, 100%);
+  height: var(--media-height, auto);
+  aspect-ratio: var(--media-aspect-ratio, auto);
+  border-radius: var(--media-radius, 0);
+}
+
+.media[data-position='background'] {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.mediaImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--media-fit, cover);
+}
+
+.mediaOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * HEADER / BODY / FOOTER
+ * ==========================================================================*/
+
+.header,
+.body,
+.footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap, var(--card-space-xs));
+  padding: var(--section-padding, var(--card-space-md));
+}
+
+.header {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--card-space-sm);
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.headerDivider,
+.footerDivider {
+  border: none;
+  border-top: 1px solid var(--card-border);
+  margin: 0;
+  width: 100%;
+}
+
+.body {
+  flex: 1 1 auto;
+}
+
+.body[data-scrollable='true'] {
+  overflow-y: auto;
+  max-height: var(--body-max-height, none);
+}
+
+.footer {
+  flex-direction: row;
+  align-items: center;
+  justify-content: var(--footer-justify, space-between);
+  flex-wrap: wrap;
+}
+
+.footerStart {
+  display: flex;
+  align-items: center;
+  gap: var(--card-space-sm);
+  min-width: 0;
+}
+
+.footerEnd {
+  display: flex;
+  align-items: center;
+  gap: var(--card-space-sm);
+  margin-left: auto;
+}
+
+.footer[data-align='center'] {
+  justify-content: center;
+}
+
+.footer[data-align='center'] .footerEnd {
+  margin-left: 0;
+}
+
+.footer[data-sticky='true'],
+.header[data-sticky='true'] {
+  position: sticky;
+  background: inherit;
+  z-index: 2;
+}
+
+.header[data-sticky='true'] {
+  top: 0;
+}
+
+.footer[data-sticky='true'] {
+  bottom: 0;
+}
+
+/* ============================================================================
+ * TITLE / SUBTITLE / DESCRIPTION
+ * ==========================================================================*/
+
+.title {
+  margin: 0;
+  font-size: var(--title-size, 1.125rem);
+  font-weight: var(--title-weight, 600);
+  line-height: var(--title-line-height, 1.3);
+  letter-spacing: var(--title-letter-spacing, normal);
+  color: var(--title-color, var(--card-text));
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--subtitle-size, 0.9375rem);
+  font-weight: var(--subtitle-weight, 500);
+  color: var(--subtitle-color, var(--card-text-muted));
+}
+
+.description {
+  margin: 0;
+  font-size: var(--description-size, 0.875rem);
+  line-height: var(--description-line-height, 1.55);
+  color: var(--description-color, var(--card-text-muted));
+}
+
+/* ============================================================================
+ * BADGE
+ * ==========================================================================*/
+
+.badge {
+  position: absolute;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: var(--badge-size, 0.75rem);
+  font-weight: var(--badge-weight, 600);
+  line-height: 1;
+  color: var(--badge-color, #ffffff);
+  background: var(--badge-bg, #6366f1);
+  border-radius: var(--card-radius-pill);
+}
+
+.badge[data-position='top-left'] {
+  top: var(--card-space-sm);
+  left: var(--card-space-sm);
+}
+
+.badge[data-position='top-right'] {
+  top: var(--card-space-sm);
+  right: var(--card-space-sm);
+}
+
+.badge[data-position='bottom-left'] {
+  bottom: var(--card-space-sm);
+  left: var(--card-space-sm);
+}
+
+.badge[data-position='bottom-right'] {
+  bottom: var(--card-space-sm);
+  right: var(--card-space-sm);
+}
+
+.badgePulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: card-badge-pulse 1.8s ease-out infinite;
+}
+
+@keyframes card-badge-pulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+
+/* ============================================================================
+ * ACTIONS
+ * ==========================================================================*/
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--actions-gap, var(--card-space-sm));
+  justify-content: var(--actions-justify, flex-end);
+  flex-wrap: nowrap;
+}
+
+.actions[data-direction='vertical'] {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.actions[data-wrap='true'] {
+  flex-wrap: wrap;
+}
+
+/* ============================================================================
+ * LOADING
+ * ==========================================================================*/
+
+.loadingOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--loading-overlay-bg, rgba(255, 255, 255, 0.7));
+  backdrop-filter: blur(2px);
+  font-size: 0.875rem;
+  color: var(--card-text-muted);
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 2px solid var(--card-border);
+  border-top-color: var(--card-accent, #6366f1);
+  animation: card-spin 0.7s linear infinite;
+}
+
+@keyframes card-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-space-sm);
+  padding: var(--card-space-md);
+}
+
+.skeletonBlock {
+  border-radius: var(--card-radius-sm);
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.15) 25%,
+    rgba(148, 163, 184, 0.3) 37%,
+    rgba(148, 163, 184, 0.15) 63%
+  );
+  background-size: 400% 100%;
+  animation: card-skeleton-shimmer 1.4s ease infinite;
+}
+
+@keyframes card-skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+/* ============================================================================
+ * REDUCED MOTION
+ * ==========================================================================*/
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .badgePulse::before,
+  .spinner,
+  .skeletonBlock {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .card[data-hover]:hover {
+    transform: none !important;
+  }
+}
+
+/* ============================================================================
+ * RESPONSIVE DEFAULTS
+ *
+ * Per-instance responsive values are applied by Card.tsx via inline CSS
+ * variables scoped to each breakpoint using container-independent media
+ * queries (min-width based, mobile-first).
+ * ==========================================================================*/
+
+@media (max-width: 480px) {
+  .card[data-direction='horizontal'],
+  .card[data-direction='image-left'],
+  .card[data-direction='image-right'] {
+    flex-direction: column;
+  }
+}
