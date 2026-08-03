@@ -16,12 +16,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ishan/ishan-ui.git"
+    "url": "git+https://github.com/Mohd-Ishan/ishan-ui.git"
   },
   "bugs": {
-    "url": "https://github.com/ishan/ishan-ui/issues"
+    "url": "https://github.com/Mohd-Ishan/ishan-ui/issues"
   },
-  "homepage": "https://github.com/ishan/ishan-ui#readme",
+  "homepage": "https://github.com/Mohd-Ishan/ishan-ui#readme",
 
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
