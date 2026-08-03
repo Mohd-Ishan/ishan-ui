@@ -1,6 +1,6 @@
 {
   "name": "ishan-ui",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A production-grade, config-driven React component library. Zero hardcoded values, full TypeScript support, tree-shakeable ESM/CJS builds.",
   "type": "module",
   "license": "MIT",
