@@ -1,19 +1,26 @@
 {
   "name": "ishan-ui",
   "version": "0.1.0",
-  "description": "A production-grade, config-driven React component library. Zero hardcoded values, full TypeScript support, tree-shakeable ESM/CJS builds.",
+  "description": "A flexible, config-driven React component library built with TypeScript, focused on customization, performance, and developer experience.",
   "type": "module",
   "license": "MIT",
-  "author": "Ishan",
+  "author": "Mohd Ishan",
   "keywords": [
-    "react",
-    "react-component-library",
-    "navbar",
-    "ui-library",
-    "typescript",
-    "framer-motion",
-    "design-system"
-  ],
+  "react",
+  "react-components",
+  "component-library",
+  "ui-library",
+  "design-system",
+  "typescript",
+  "vite",
+  "navbar",
+  "button",
+  "modal",
+  "framer-motion",
+  "config-driven",
+  "customizable",
+  "frontend"
+],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Mohd-Ishan/ishan-ui.git"
